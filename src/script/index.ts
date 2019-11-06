@@ -6,6 +6,7 @@
 import first from "lodash/first"
 import last from "lodash/last"
 import sortedIndexBy from "lodash/sortedIndexBy"
+import cloneDeep from "lodash/cloneDeep"
 import {
     traverseNodes,
     ESLintArrayPattern,
@@ -235,7 +236,14 @@ function parseScriptFragment(
     parserOptions: any,
 ): ESLintExtendedProgram {
     try {
-        const result = parseScript(code, parserOptions)
+        const newParserOptions = cloneDeep(parserOptions)
+        if (
+            typeof parserOptions.parser === "string" &&
+            parserOptions.parser.includes("@typescript-eslint/parser")
+        ) {
+            newParserOptions.fragment = true
+        }
+        const result = parseScript(code, newParserOptions)
         postprocess(result, locationCalculator)
         return result
     } catch (err) {
